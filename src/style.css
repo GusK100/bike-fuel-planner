@@ -244,7 +244,7 @@ aside.plan {
   overflow: hidden;
 }
 @media (max-width: 900px) {
-  aside.plan { position: static; max-height: none; }
+  aside.plan { position: static; max-height: none; order: -1; }
 }
 .plan-body {
   overflow-y: auto;
