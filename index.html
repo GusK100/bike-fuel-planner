@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bike fuel planner</title>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- LEFT: catalog -->
+  <main>
+    <header>
+      <h1>Bike fuel planner</h1>
+      <p class="lede">Tap a fuel to add it to your ride. The panel on the right tracks your totals and tells you whether you're hitting your hourly carb target.</p>
+    </header>
+
+    <div class="section-label">
+      <h2>Fast carbs</h2>
+      <span class="count">Rapid hit — good for hard efforts &amp; bonks.</span>
+    </div>
+    <div class="grid" id="grid-fast"></div>
+
+    <div class="section-label">
+      <h2>Mixed</h2>
+      <span class="count">Steady release with some fibre.</span>
+    </div>
+    <div class="grid" id="grid-mixed"></div>
+
+    <div class="section-label">
+      <h2>Slow carbs</h2>
+      <span class="count">Longer-burning real food &amp; bakery.</span>
+    </div>
+    <div class="grid" id="grid-slow"></div>
+
+    <section class="rules">
+      <h2>Three rules for every ride</h2>
+      <ol>
+        <li><strong>Start before you need it.</strong> By the time you feel hungry or flat, you're 30–45 min behind.</li>
+        <li><strong>Practice in training.</strong> Race day isn't where you find out your gut hates fructose.</li>
+        <li><strong>Two bottles, different jobs.</strong> Carbs in one, plain water in the other — adjust each independently for heat and intensity.</li>
+      </ol>
+    </section>
+  </main>
+
+  <!-- RIGHT: plan -->
+  <aside class="plan">
+    <div class="plan-body">
+      <div class="plan-head">
+        <div class="title">
+          <input id="plan-name" value="Sunday long ride" maxlength="40" aria-label="Plan name"/>
+        </div>
+        <button class="clear" id="clear-btn" title="Clear all selections">Clear</button>
+      </div>
+
+      <div class="inputs">
+        <div class="input-cell">
+          <label for="dur">Duration</label>
+          <div class="row">
+            <input id="dur" type="number" min="0.5" max="12" step="0.5" value="3"/>
+            <span class="unit">hr</span>
+          </div>
+        </div>
+        <div class="input-cell">
+          <label for="target">
+            <span>Target carbs</span>
+            <button type="button" id="auto-target" class="auto-toggle" aria-pressed="true" title="Auto-pick from ride length">Auto</button>
+          </label>
+          <div class="row">
+            <input id="target" type="number" min="0" max="130" step="5" value="70"/>
+            <span class="unit">g/hr</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="coach" id="coach">
+        <div class="coach-head">
+          <span class="coach-band" id="coach-band">—</span>
+          <span class="coach-target" id="coach-target-range"></span>
+        </div>
+        <p class="coach-tip" id="coach-tip">—</p>
+      </div>
+
+      <div class="readouts">
+        <div class="readout hero">
+          <span class="k">Carbs / hour</span>
+          <span class="v"><span id="r-carbs-hr">0</span><span class="u">g/hr</span></span>
+          <span class="hint" id="r-hint">
+            <span class="dot"></span>
+            <span id="r-hint-text">Add items to start</span>
+          </span>
+          <div class="target-bar"><div class="fill" id="r-bar"></div></div>
+        </div>
+        <div class="readout">
+          <span class="k">Total carbs</span>
+          <span class="v"><span id="r-carbs">0</span><span class="u">g</span></span>
+        </div>
+        <div class="readout">
+          <span class="k">Calories</span>
+          <span class="v"><span id="r-cal">0</span><span class="u">kcal</span></span>
+        </div>
+        <div class="readout">
+          <span class="k">Pocket weight</span>
+          <span class="v"><span id="r-wt">0</span><span class="u" id="r-wt-u">g</span></span>
+        </div>
+        <div class="readout cost-readout">
+          <span class="k">Est. cost</span>
+          <span class="v"><span id="r-cost-cur">€</span><span id="r-cost">0.00</span></span>
+        </div>
+      </div>
+
+      <div class="mix">
+        <div class="mix-label">
+          <h3>Carb mix</h3>
+          <span class="meta" id="mix-meta" style="font-size:11px;color:var(--text-faint);"></span>
+        </div>
+        <div class="mix-bar">
+          <span class="fast"  id="mix-fast"  style="flex: 0 0 0%;"></span>
+          <span class="mixed" id="mix-mixed" style="flex: 0 0 0%;"></span>
+          <span class="slow"  id="mix-slow"  style="flex: 0 0 0%;"></span>
+          <div class="mix-rec" id="mix-rec" aria-hidden="true"></div>
+        </div>
+        <div class="mix-legend">
+          <span><span class="sw fast"></span><span id="leg-fast">0%</span> fast <span class="rec" id="rec-fast"></span></span>
+          <span><span class="sw mixed"></span><span id="leg-mixed">0%</span> mixed <span class="rec" id="rec-mixed"></span></span>
+          <span><span class="sw slow"></span><span id="leg-slow">0%</span> slow <span class="rec" id="rec-slow"></span></span>
+        </div>
+      </div>
+
+      <div class="timeline-wrap">
+        <div class="timeline-head">
+          <h3>Timeline</h3>
+          <span class="meta" id="tl-meta">0 items</span>
+        </div>
+        <div class="timeline" id="timeline">
+          <div class="axis"></div>
+          <div class="ticks" id="tl-ticks"></div>
+          <div class="items" id="tl-items"></div>
+        </div>
+        <div class="timeline-empty" id="tl-empty">Items appear here, spaced across your ride. Drag to retime.</div>
+      </div>
+
+      <div class="saved" id="saved-wrap" style="padding:0; margin-bottom: 14px;">
+        <h3>Saved plans</h3>
+        <div class="saved-list" id="saved-list"></div>
+        <div id="saved-empty" style="font-size:12px;color:var(--text-faint);">No saved plans yet.</div>
+      </div>
+    </div>
+
+    <div class="plan-foot">
+      <button class="btn" id="duplicate-btn">Duplicate</button>
+      <button class="btn primary" id="save-btn">Save plan</button>
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Tweaks panel -->
+<button id="tweaks-btn" style="position:fixed;bottom:20px;right:20px;background:var(--card);border:0.5px solid var(--border-strong);border-radius:8px;padding:8px 12px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);z-index:91;">Settings ⚙</button>
+
+<div class="tweaks" id="tweaks">
+  <div class="tweaks-head">
+    <h4>Tweaks</h4>
+    <button id="tweaks-close" aria-label="Close">Close</button>
+  </div>
+
+  <div class="tweak">
+    <div class="tweak-label"><span>Accent</span></div>
+    <div class="seg" data-tweak="accent">
+      <button data-val="ink"><span class="sw" style="background:#1a1a1a"></span>Ink</button>
+      <button data-val="forest"><span class="sw" style="background:#2E8A6B"></span>Forest</button>
+      <button data-val="rust"><span class="sw" style="background:#C44A3E"></span>Rust</button>
+    </div>
+  </div>
+
+  <div class="tweak">
+    <div class="tweak-label"><span>Density</span></div>
+    <div class="seg" data-tweak="density">
+      <button data-val="comfortable">Comfortable</button>
+      <button data-val="compact">Compact</button>
+    </div>
+  </div>
+
+  <div class="tweak">
+    <div class="tweak-label"><span>Icon background</span></div>
+    <div class="seg" data-tweak="iconBg">
+      <button data-val="tinted">Tinted</button>
+      <button data-val="white">White</button>
+    </div>
+  </div>
+
+  <div class="tweak">
+    <div class="tweak-label"><span>Units</span></div>
+    <div class="seg" data-tweak="units">
+      <button data-val="metric">g · kcal</button>
+      <button data-val="imperial">oz · kcal</button>
+    </div>
+  </div>
+
+  <div class="tweak">
+    <div class="tweak-label"><span>Currency</span></div>
+    <div class="seg" data-tweak="currency">
+      <button data-val="GBP">£</button>
+      <button data-val="USD">$</button>
+      <button data-val="EUR">€</button>
+    </div>
+  </div>
+
+  <div class="tweak">
+    <div class="toggle-row">
+      <span>Show cost</span>
+      <div class="toggle" id="tgl-cost" data-tweak="showCost" role="switch"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
