@@ -86,7 +86,11 @@ const FUELS = [
   { id: 'raisins', name: 'Raisins',           sub: 'mini box, ~30g',            type: 'mixed', carbs: 23, cals: 90,  weight: 30,  cost: 0.40 },
   { id: 'oatbar',  name: 'Oat bar',           sub: 'shop-bought, ~60g',         type: 'slow',  carbs: 35, cals: 240, weight: 60,  cost: 1.50 },
   { id: 'giff',    name: 'Pågen Gifflar',     sub: 'cinnamon, 1 roll ~26g',     type: 'slow',  carbs: 13, cals: 93,  weight: 26,  cost: 0.40 },
-  { id: 'rice',    name: 'Rice cake + honey', sub: 'homemade, ~60g',            type: 'slow',  carbs: 35, cals: 180, weight: 60,  cost: 0.50 },
+  { id: 'rice',    name: 'Rice cake + honey', sub: 'homemade, ~60g',            type: 'slow',      carbs: 35, cals: 180, weight: 60,  cost: 0.50 },
+  { id: 'caf75',  name: 'Caffeine gel, 75mg', sub: 'e.g. SiS GO Caffeine',     type: 'fast',      carbs: 22, cals: 90,  weight: 60,  cost: 2.80, caffeine: 75  },
+  { id: 'caf100', name: 'Caffeine gel, 100mg',sub: 'e.g. Maurten Caf 100',      type: 'fast',      carbs: 25, cals: 100, weight: 40,  cost: 3.80, caffeine: 100 },
+  { id: 'water',  name: 'Water',              sub: '500ml bottle',               type: 'hydration', carbs: 0,  cals: 0,   weight: 520, cost: 0.00 },
+  { id: 'electro',name: 'Electrolyte drink',  sub: 'e.g. Precision Hydration',  type: 'hydration', carbs: 3,  cals: 15,  weight: 520, cost: 1.50 },
 ];
 
 const ICONS = {
@@ -180,7 +184,79 @@ const ICONS = {
     <circle cx="58" cy="58" r="2.5" fill="#D3D1C7"/>
     <path d="M30 38 Q40 28 50 32 Q60 28 70 38 Q72 42 68 44 Q60 38 50 42 Q40 38 32 44 Q28 42 30 38 Z" fill="#EF9F27" opacity="0.8"/>
     <path d="M35 40 Q50 36 65 40" stroke="#BA7517" stroke-width="1" fill="none" opacity="0.5"/></svg>`,
+  caf75: `<svg viewBox="0 0 100 100" class="illus" xmlns="http://www.w3.org/2000/svg">
+    <rect x="28" y="12" width="44" height="76" rx="6" fill="#E8971E"/>
+    <rect x="28" y="12" width="44" height="14" rx="6" fill="#B36E0C"/>
+    <path d="M32 26 L68 26 L68 30 L32 30 Z" fill="#8A5208"/>
+    <polygon points="53,34 44,52 51,52 43,70 58,48 51,48" fill="#FFE07A" opacity="0.95"/>
+    <text x="50" y="80" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="8">75 mg</text></svg>`,
+  caf100: `<svg viewBox="0 0 100 100" class="illus" xmlns="http://www.w3.org/2000/svg">
+    <rect x="22" y="8" width="56" height="84" rx="6" fill="#5B3A8C"/>
+    <rect x="22" y="8" width="56" height="16" rx="6" fill="#3D2468"/>
+    <path d="M26 24 L74 24 L74 28 L26 28 Z" fill="#2C1850"/>
+    <polygon points="54,32 44,52 52,52 42,72 60,48 52,48" fill="#D4AAFF" opacity="0.95"/>
+    <text x="50" y="82" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="8">100 mg</text></svg>`,
+  water: `<svg viewBox="0 0 100 100" class="illus" xmlns="http://www.w3.org/2000/svg">
+    <rect x="42" y="12" width="16" height="10" rx="3" fill="#2E6FAD"/>
+    <path d="M38 22 L62 22 L64 30 L64 88 Q64 92 60 92 L40 92 Q36 92 36 88 L36 30 Z" fill="#5B9BD5"/>
+    <path d="M36 60 L64 60 L64 88 Q64 92 60 92 L40 92 Q36 92 36 88 Z" fill="#7BBEE8" opacity="0.45"/>
+    <rect x="39" y="32" width="4" height="36" fill="#fff" opacity="0.22" rx="2"/>
+    <path d="M38 60 Q46 56 50 60 Q54 64 62 60" stroke="#fff" stroke-width="1.2" fill="none" opacity="0.4"/></svg>`,
+  electro: `<svg viewBox="0 0 100 100" class="illus" xmlns="http://www.w3.org/2000/svg">
+    <rect x="42" y="12" width="16" height="10" rx="3" fill="#1A5A45"/>
+    <path d="M38 22 L62 22 L64 30 L64 88 Q64 92 60 92 L40 92 Q36 92 36 88 L36 30 Z" fill="#2E8A6B"/>
+    <path d="M36 62 L64 62 L64 88 Q64 92 60 92 L40 92 Q36 92 36 88 Z" fill="#4AAD87" opacity="0.4"/>
+    <rect x="39" y="32" width="4" height="40" fill="#fff" opacity="0.2" rx="2"/>
+    <ellipse cx="50" cy="46" rx="11" ry="5" fill="#fff" opacity="0.85"/>
+    <text x="50" y="49.5" text-anchor="middle" fill="#2E8A6B" font-family="sans-serif" font-size="7" font-weight="700">Na+</text>
+    <circle cx="43" cy="58" r="2" fill="#fff" opacity="0.35"/>
+    <circle cx="52" cy="55" r="1.5" fill="#fff" opacity="0.35"/>
+    <circle cx="59" cy="59" r="1.2" fill="#fff" opacity="0.35"/></svg>`,
 };
+
+/* ============ PRE-RIDE TIPS ============ */
+const PRE_RIDE_TIPS = {
+  recovery:  null,
+  endurance: null, // duration-dependent — handled in getPreRideTip()
+  tempo:     { timing: '2–3 hrs before', tip: '80–100g carbs: oats, rice, or toast. Avoid high fat and fibre on the day.' },
+  sweetspot: { timing: '2–3 hrs before', tip: '100g carbs: rice or banana bread. Top up with a banana 30 min before your first block.' },
+  threshold: { timing: '2–3 hrs before', tip: '100–120g carbs: rice or pasta. Take a gel 15 min before your first interval.' },
+  vo2max:    { timing: '3 hrs before',   tip: 'Carb-load the day before. 100–120g for breakfast. This session lives or dies on glycogen.' },
+  sprint:    { timing: '2–3 hrs before', tip: 'Normal carb meal. Caffeine (3–6 mg/kg) 60 min before the session helps significantly.' },
+};
+
+function getPreRideTip(workoutType, dur) {
+  if (workoutType === 'recovery') return null;
+  if (workoutType === 'endurance') {
+    if (dur < 1.5) return { timing: null, tip: 'No special prep needed — water is fine for a short ride.' };
+    if (dur < 3)   return { timing: '1–2 hrs before', tip: 'Light meal: banana, toast, or oats. Fasted is fine for easy rides under 2 hours.' };
+    return             { timing: '2–3 hrs before', tip: '80–100g carbs: rice, oats, or pasta. Don\'t start a long ride hungry.' };
+  }
+  return PRE_RIDE_TIPS[workoutType] || null;
+}
+
+/* ============ HYDRATION TARGETS (ml/hr) ============ */
+const HYDRATION_TARGETS = {
+  recovery:  350,
+  endurance: 500,
+  tempo:     600,
+  sweetspot: 650,
+  threshold: 750,
+  vo2max:    800,
+  sprint:    600,
+};
+
+/* ============ BURN RATE (FTP-based) ============ */
+const WT_INTENSITY = { recovery: 0.50, endurance: 0.65, tempo: 0.82, sweetspot: 0.91, threshold: 1.00, vo2max: 1.13, sprint: 1.30 };
+const WT_CARB_PCT  = { recovery: 0.40, endurance: 0.55, tempo: 0.72, sweetspot: 0.82, threshold: 0.90, vo2max: 0.97, sprint: 1.00 };
+
+function calcBurnRate(ftp, workoutTypeId) {
+  if (!ftp || ftp <= 0) return null;
+  const watts    = ftp * (WT_INTENSITY[workoutTypeId] || 0.65);
+  const carbPct  = WT_CARB_PCT[workoutTypeId] || 0.55;
+  const kcalPerHr = Math.round(watts * 3.9 / 10) * 10;
+  return { kcalPerHr, carbPct: Math.round(carbPct * 100) };
+}
 
 /* ============ STATE ============ */
 const STATE_KEY = 'bike-fuel-planner-v1';
@@ -209,6 +285,7 @@ const state = {
   target: 70,
   autoTarget: true,
   workoutType: 'endurance',
+  ftp: 0,
   qty: {},
   customTimes: {},
 };
@@ -259,16 +336,19 @@ function renderWorkoutSelector() {
 /* ============ RENDER: cards ============ */
 function fuelCard(f) {
   const tagClass = `tag-${f.type}`;
-  const typeLabel = f.type[0].toUpperCase() + f.type.slice(1);
+  const typeLabel = f.type === 'hydration' ? 'Hydration' : f.type[0].toUpperCase() + f.type.slice(1);
+  const cafBadge = f.caffeine ? `<span class="caf-badge">${f.caffeine}mg</span>` : '';
+  const carbsLabel = f.type === 'hydration' ? (f.carbs > 0 ? `${f.carbs} g` : '—') : `${f.carbs} g`;
+  const calsLabel  = f.type === 'hydration' ? (f.cals  > 0 ? `${f.cals}`  : '—') : `${f.cals}`;
   return `
     <div class="card" data-id="${f.id}" data-type="${f.type}">
-      <div class="icon-wrap">${ICONS[f.id]}</div>
+      <div class="icon-wrap">${ICONS[f.id]}${cafBadge}</div>
       <p class="name">${f.name}</p>
       <p class="sub">${f.sub}</p>
       <div class="bottom">
         <div class="type-col"><span class="stat-label">type</span><span class="tag ${tagClass}">${typeLabel}</span></div>
-        <div class="stat"><span class="stat-label">carbs</span><span class="stat-value">${f.carbs} g</span></div>
-        <div class="stat"><span class="stat-label">cals</span><span class="stat-value">${f.cals}</span></div>
+        <div class="stat"><span class="stat-label">carbs</span><span class="stat-value">${carbsLabel}</span></div>
+        <div class="stat"><span class="stat-label">cals</span><span class="stat-value">${calsLabel}</span></div>
       </div>
       <div class="stepper" aria-label="Quantity">
         <button class="minus" aria-label="Remove one">−</button>
@@ -279,11 +359,12 @@ function fuelCard(f) {
 }
 
 function renderGrids() {
-  const groups = { fast: [], mixed: [], slow: [] };
+  const groups = { fast: [], mixed: [], slow: [], hydration: [] };
   FUELS.forEach(f => groups[f.type].push(f));
-  document.getElementById('grid-fast').innerHTML  = groups.fast.map(fuelCard).join('');
-  document.getElementById('grid-mixed').innerHTML = groups.mixed.map(fuelCard).join('');
-  document.getElementById('grid-slow').innerHTML  = groups.slow.map(fuelCard).join('');
+  document.getElementById('grid-fast').innerHTML      = groups.fast.map(fuelCard).join('');
+  document.getElementById('grid-mixed').innerHTML     = groups.mixed.map(fuelCard).join('');
+  document.getElementById('grid-slow').innerHTML      = groups.slow.map(fuelCard).join('');
+  document.getElementById('grid-hydration').innerHTML = groups.hydration.map(fuelCard).join('');
 
   document.querySelectorAll('.card').forEach(card => {
     const id = card.dataset.id;
@@ -473,6 +554,31 @@ function render() {
     document.getElementById('rec-slow').textContent  = '';
   }
 
+  // Pre-ride tip
+  const preTip = getPreRideTip(state.workoutType, dur);
+  const preSection = document.getElementById('preride');
+  if (preTip) {
+    preSection.style.display = 'block';
+    document.getElementById('preride-timing').textContent = preTip.timing || '';
+    document.getElementById('preride-tip').textContent    = preTip.tip;
+  } else {
+    preSection.style.display = 'none';
+  }
+
+  // Hydration readout
+  const hydTarget = HYDRATION_TARGETS[state.workoutType] || 500;
+  document.getElementById('r-hydration').textContent = hydTarget;
+
+  // Burn rate readout
+  const burn = calcBurnRate(state.ftp, state.workoutType);
+  const burnCell = document.getElementById('r-burn-cell');
+  if (burn) {
+    burnCell.style.display = '';
+    document.getElementById('r-burn').textContent = `${burn.kcalPerHr} kcal/hr · ${burn.carbPct}% carbs`;
+  } else {
+    burnCell.style.display = 'none';
+  }
+
   renderTimeline(dur);
   renderSaved();
 }
@@ -537,10 +643,23 @@ function renderTimeline(dur) {
       : `${instances.length} items · every ${Math.round((dur / (instances.length - 1)) * 60)} min`;
   emptyEl.style.display = instances.length ? 'none' : 'block';
 
+  // Caffeine window overlay
+  const cafEl = document.getElementById('caf-window');
+  if (dur >= 2) {
+    const winStart = Math.max(0.5, dur * 0.6);
+    const winEnd   = dur - 0.25;
+    cafEl.style.display = 'block';
+    cafEl.style.left     = (winStart / dur * 100) + '%';
+    cafEl.style.width    = ((winEnd - winStart) / dur * 100) + '%';
+  } else {
+    cafEl.style.display = 'none';
+  }
+
   const ABBR = {
     gel40: 'G40', gel60: 'G60', drink: 'Mix', haribo: 'Hb',
     chews: 'Ch',  cola:  'Co',  banana: 'Bn', mango: 'Mg',
     raisins: 'Rs', oatbar: 'Oat', giff: 'Gf', rice: 'Rc',
+    caf75: 'C75', caf100: 'C100', water: 'H2O', electro: 'Elt',
   };
 
   itemsEl.innerHTML = instances.map((it, i) => {
@@ -550,8 +669,9 @@ function renderTimeline(dur) {
     h = Math.max(0, Math.min(dur, h));
     const p = (h / dur) * 100;
     const abbr = ABBR[it.id] || '•';
+    const chipType = it.f.caffeine ? 'caffeine' : it.f.type;
     return `<div class="timeline-item" data-key="${key}" style="left:${p}%;">
-      <div class="chip ${it.f.type}" title="${it.f.name} at ${fmtTime(h)}">${abbr}</div>
+      <div class="chip ${chipType}" title="${it.f.name} at ${fmtTime(h)}">${abbr}</div>
       <div class="time">${fmtTime(h)}</div>
     </div>`;
   }).join('');
@@ -700,6 +820,7 @@ applyTweaks();
 document.getElementById('plan-name').value = state.name;
 document.getElementById('dur').value       = state.duration;
 document.getElementById('target').value    = state.target;
+if (state.ftp) document.getElementById('ftp').value = state.ftp;
 render();
 
 document.getElementById('dur').addEventListener('input', (e) => {
@@ -721,6 +842,11 @@ document.getElementById('auto-target').addEventListener('click', () => {
 document.getElementById('plan-name').addEventListener('input', (e) => {
   state.name = e.target.value || 'Untitled plan';
   saveState();
+});
+document.getElementById('ftp').addEventListener('input', (e) => {
+  state.ftp = Math.max(0, Math.min(600, Number(e.target.value) || 0));
+  saveState();
+  render();
 });
 document.getElementById('clear-btn').addEventListener('click', clearAll);
 document.getElementById('save-btn').addEventListener('click', savePlan);

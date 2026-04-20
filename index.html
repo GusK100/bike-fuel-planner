@@ -34,6 +34,12 @@
     </div>
     <div class="grid" id="grid-slow"></div>
 
+    <div class="section-label">
+      <h2>Hydration</h2>
+      <span class="count">Water &amp; electrolytes — schedule alongside your food.</span>
+    </div>
+    <div class="grid" id="grid-hydration"></div>
+
     <section class="rules">
       <h2>Three rules for every ride</h2>
       <ol>
@@ -75,6 +81,13 @@
             <span class="unit">g/hr</span>
           </div>
         </div>
+        <div class="input-cell">
+          <label for="ftp">FTP <span class="opt-label">optional</span></label>
+          <div class="row">
+            <input id="ftp" type="number" min="0" max="600" step="5" placeholder="—"/>
+            <span class="unit">W</span>
+          </div>
+        </div>
       </div>
 
       <div class="coach" id="coach">
@@ -83,6 +96,14 @@
           <span class="coach-target" id="coach-target-range"></span>
         </div>
         <p class="coach-tip" id="coach-tip">—</p>
+      </div>
+
+      <div class="preride" id="preride" style="display:none">
+        <div class="preride-head">
+          <span class="preride-label">Pre-ride meal</span>
+          <span class="preride-timing" id="preride-timing"></span>
+        </div>
+        <p class="preride-tip" id="preride-tip"></p>
       </div>
 
       <div class="readouts">
@@ -111,6 +132,15 @@
           <span class="k">Est. cost</span>
           <span class="v"><span id="r-cost-cur">€</span><span id="r-cost">0.00</span></span>
         </div>
+        <div class="readout">
+          <span class="k">Hydration target</span>
+          <span class="v"><span id="r-hydration">500</span><span class="u">ml/hr</span></span>
+          <span class="hint" style="font-size:10px;color:var(--text-faint)">+250 ml/hr if temps &gt;25°C</span>
+        </div>
+        <div class="readout" id="r-burn-cell" style="display:none">
+          <span class="k">Est. burn</span>
+          <span class="v" style="font-size:13px;letter-spacing:-0.01em"><span id="r-burn">—</span></span>
+        </div>
       </div>
 
       <div class="mix">
@@ -138,6 +168,7 @@
         </div>
         <div class="timeline" id="timeline">
           <div class="axis"></div>
+          <div class="caf-window" id="caf-window" style="display:none"></div>
           <div class="ticks" id="tl-ticks"></div>
           <div class="items" id="tl-items"></div>
         </div>
