@@ -62,6 +62,17 @@ function wireTweaks() {
   });
 }
 
+/* ============ WORKOUT TYPES ============ */
+const WORKOUT_TYPES = [
+  { id: 'recovery',  name: 'Recovery',   zone: 'Z1',   pct: '<55%',     carbs: [0,  20],  mid: 10, tip: 'Active recovery — water only is fine. Promotes blood flow without adding training stress.' },
+  { id: 'endurance', name: 'Endurance',  zone: 'Z2',   pct: '56–75%',   carbs: null,      mid: null, tip: 'Fat-burning base work. Target carbs scale with ride length — see duration below.' },
+  { id: 'tempo',     name: 'Tempo',      zone: 'Z3',   pct: '76–87%',   carbs: [60, 60],  mid: 60, tip: 'Burns more glycogen than it feels. Don\'t skimp — muscular endurance work is carb-hungry.' },
+  { id: 'sweetspot', name: 'Sweet Spot', zone: 'Z3+',  pct: '88–93%',   carbs: [60, 80],  mid: 70, tip: '90% of threshold benefit, 70% of the fatigue. Front-load a gel before your first interval.' },
+  { id: 'threshold', name: 'Threshold',  zone: 'Z4',   pct: '94–105%',  carbs: [80, 90],  mid: 85, tip: 'Heavily glycolytic — under-fuelling kills the session. Pre-load a gel 15 min before starting.' },
+  { id: 'vo2max',    name: 'VO2max',     zone: 'Z5',   pct: '106–120%', carbs: [80, 100], mid: 90, tip: 'Carb-load the day before. A carb-rich breakfast 3 hours prior is critical — empty tank = aborted session.' },
+  { id: 'sprint',    name: 'Sprint',     zone: 'Z6–7', pct: '>120%',    carbs: [60, 80],  mid: 70, tip: 'Pre-loaded carbs and caffeine matter more than in-session intake. Efforts are too short to absorb much.' },
+];
+
 /* ============ DATA ============ */
 const FUELS = [
   { id: 'gel40',   name: 'Energy gel, 40g',   sub: 'e.g. Maurten Gel 100',      type: 'fast',  carbs: 25, cals: 100, weight: 40,  cost: 2.50 },
@@ -197,6 +208,7 @@ const state = {
   duration: 3,
   target: 70,
   autoTarget: true,
+  workoutType: 'endurance',
   qty: {},
   customTimes: {},
 };
@@ -223,6 +235,25 @@ function getSaved() {
 
 function setSaved(list) {
   try { localStorage.setItem(SAVED_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+/* ============ RENDER: workout selector ============ */
+function renderWorkoutSelector() {
+  const container = document.getElementById('wt-selector');
+  container.innerHTML = WORKOUT_TYPES.map(wt => `
+    <button class="wt-btn${state.workoutType === wt.id ? ' is-active' : ''}" data-id="${wt.id}">
+      <span class="wt-zone">${wt.zone} · ${wt.pct}</span>
+      <span class="wt-name">${wt.name}</span>
+    </button>`).join('');
+  container.querySelectorAll('.wt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.workoutType = btn.dataset.id;
+      state.autoTarget = true;
+      saveState();
+      renderWorkoutSelector();
+      render();
+    });
+  });
 }
 
 /* ============ RENDER: cards ============ */
@@ -339,20 +370,29 @@ function render() {
   const dur = Math.max(0.5, Number(state.duration) || 0.5);
   const band = bandFor(dur);
 
-  if (state.autoTarget) {
-    state.target = band.mid;
+  const wt = WORKOUT_TYPES.find(w => w.id === state.workoutType);
+  const useWt = wt && wt.id !== 'endurance';
+
+  const activeMid    = useWt ? wt.mid    : band.mid;
+  const activeTarget = useWt ? wt.carbs  : band.target;
+  const activeTip    = useWt ? wt.tip    : band.tip;
+  const activeName   = useWt ? `${wt.name} · ${wt.zone}` : band.name;
+
+  if (state.autoTarget && activeMid !== null) {
+    state.target = activeMid;
     const targetEl = document.getElementById('target');
-    if (targetEl && document.activeElement !== targetEl) targetEl.value = band.mid;
+    if (targetEl && document.activeElement !== targetEl) targetEl.value = activeMid;
   }
 
   const cph = t.carbs / dur;
 
-  document.getElementById('coach-band').textContent = band.name;
-  const tgtLabel = band.target[0] === band.target[1]
-    ? (band.target[0] === 0 ? '0 g/hr' : `${band.target[0]} g/hr`)
-    : `${band.target[0]}–${band.target[1]} g/hr`;
+  document.getElementById('coach-band').textContent = activeName;
+  const [cLo, cHi] = activeTarget || [0, 0];
+  const tgtLabel = cLo === cHi
+    ? (cLo === 0 ? '0 g/hr' : `${cLo} g/hr`)
+    : `${cLo}–${cHi} g/hr`;
   document.getElementById('coach-target-range').textContent = 'Target ' + tgtLabel;
-  document.getElementById('coach-tip').textContent = band.tip;
+  document.getElementById('coach-tip').textContent = activeTip;
 
   const autoBtn = document.getElementById('auto-target');
   if (autoBtn) autoBtn.setAttribute('aria-pressed', state.autoTarget ? 'true' : 'false');
@@ -373,7 +413,7 @@ function render() {
   bar.classList.remove('warn', 'bad');
   hint.classList.remove('good', 'warn', 'bad');
 
-  const [lo, hi] = band.target;
+  const [lo, hi] = activeTarget || [0, 0];
 
   if (t.count === 0) {
     bar.style.width = '0%';
@@ -414,7 +454,7 @@ function render() {
   document.getElementById('leg-slow').textContent  = Math.round(aSlow)  + '%';
   document.getElementById('mix-meta').textContent  = totalC ? `${Math.round(t.carbs)} g total` : '';
 
-  const rec = band.mix;
+  const rec = useWt ? { fast: 0, mixed: 0, slow: 0 } : band.mix;
   const recTotal = rec.fast + rec.mixed + rec.slow;
   const recEl = document.getElementById('mix-rec');
   if (recTotal > 0) {
@@ -653,6 +693,7 @@ function toast(msg) {
 
 /* ============ INIT ============ */
 loadState();
+renderWorkoutSelector();
 renderGrids();
 wireTweaks();
 applyTweaks();

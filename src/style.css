@@ -762,6 +762,55 @@ body.icons-white .icon-wrap { background: #fff; border: 0.5px solid var(--border
 /* Cost hidden */
 body.cost-off .readout.cost-readout { display: none; }
 
+/* Workout type selector */
+.wt-label {
+  font-size: 10px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.wt-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.wt-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 7px 8px;
+  border-radius: 8px;
+  border: 0.5px solid var(--border-strong);
+  background: var(--panel);
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+  text-align: left;
+}
+.wt-btn:hover { background: var(--card); }
+.wt-zone {
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  line-height: 1;
+}
+.wt-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.2;
+}
+.wt-btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.wt-btn.is-active .wt-zone { color: rgba(255,255,255,0.6); }
+.wt-btn.is-active .wt-name { color: #fff; }
+
 /* Auto-target toggle */
 .auto-toggle {
   font-size: 9px;
