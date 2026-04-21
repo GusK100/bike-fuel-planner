@@ -38,13 +38,13 @@ function wireTweaks() {
 
 /* ============ WORKOUT TYPES ============ */
 const WORKOUT_TYPES = [
-  { id: 'recovery',  label: 'Recovery',   intensity: '<55% FTP',    carbs: '0–20g/hr',  desc: 'Active recovery. Promotes blood flow without adding training stress. Perfect after a hard day.' },
-  { id: 'endurance', label: 'Endurance',  intensity: '56–75% FTP',  carbs: '30–90g/hr', desc: 'The foundation. Builds mitochondrial density and fat-burning efficiency. 60–70% of your training lives here.' },
-  { id: 'tempo',     label: 'Tempo',      intensity: '76–87% FTP',  carbs: '60g/hr',    desc: 'Builds muscular endurance and glycogen storage. Less fatiguing than threshold, great for time-crunched riders.' },
-  { id: 'sweetspot', label: 'Sweet Spot', intensity: '88–93% FTP',  carbs: '60–80g/hr', desc: '~90% of threshold benefit with ~70% of the fatigue. The money zone for FTP gains per hour trained.' },
-  { id: 'threshold', label: 'Threshold',  intensity: '94–105% FTP', carbs: '80–90g/hr', desc: 'The most direct FTP-builder. Heavily glycolytic — under-fuelling here kills the session quality.' },
-  { id: 'vo2max',    label: 'VO2max',     intensity: '106–120% FTP',carbs: '80–100g/hr',desc: 'Raises your aerobic ceiling. Only do when fully rested — fatigue blunts the stimulus completely.' },
-  { id: 'sprint',    label: 'Sprint',     intensity: '>120% FTP',   carbs: '60–80g/hr', desc: 'Builds neuromuscular power and anaerobic capacity. Pre-loaded carbs matter more than in-session intake.' },
+  { id: 'recovery',  label: 'Recovery',   intensity: '<55% FTP',    carbs: '0–20g/hr',   defaultCarbs: 10,  desc: 'Active recovery. Promotes blood flow without adding training stress. Perfect after a hard day.' },
+  { id: 'endurance', label: 'Endurance',  intensity: '56–75% FTP',  carbs: '30–90g/hr',  defaultCarbs: 60,  desc: 'The foundation. Builds mitochondrial density and fat-burning efficiency. 60–70% of your training lives here.' },
+  { id: 'tempo',     label: 'Tempo',      intensity: '76–87% FTP',  carbs: '60g/hr',     defaultCarbs: 60,  desc: 'Builds muscular endurance and glycogen storage. Less fatiguing than threshold, great for time-crunched riders.' },
+  { id: 'sweetspot', label: 'Sweet Spot', intensity: '88–93% FTP',  carbs: '60–80g/hr',  defaultCarbs: 70,  desc: '~90% of threshold benefit with ~70% of the fatigue. The money zone for FTP gains per hour trained.' },
+  { id: 'threshold', label: 'Threshold',  intensity: '94–105% FTP', carbs: '80–90g/hr',  defaultCarbs: 80,  desc: 'The most direct FTP-builder. Heavily glycolytic — under-fuelling here kills the session quality.' },
+  { id: 'vo2max',    label: 'VO2max',     intensity: '106–120% FTP',carbs: '80–100g/hr', defaultCarbs: 90,  desc: 'Raises your aerobic ceiling. Only do when fully rested — fatigue blunts the stimulus completely.' },
+  { id: 'sprint',    label: 'Sprint',     intensity: '>120% FTP',   carbs: '60–80g/hr',  defaultCarbs: 70,  desc: 'Builds neuromuscular power and anaerobic capacity. Pre-loaded carbs matter more than in-session intake.' },
 ];
 
 /* ============ FUELS ============ */
@@ -197,10 +197,17 @@ function updateWtDesc() {
 }
 
 function applyAutoTarget() {
-  const band = bandFor(state.duration);
-  state.target = band.mid;
+  const wt = WORKOUT_TYPES.find(w => w.id === state.workoutType);
+  const wtCarbs = wt ? wt.defaultCarbs : 60;
+  // Short rides cap carbs regardless of intensity
+  let target;
+  if (state.duration <= 1.5)      target = 0;               // <90 min — glycogen covers it
+  else if (state.duration <= 2)   target = Math.min(wtCarbs, 40); // 90 min–2 h — absorption limit
+  else                            target = wtCarbs;          // 2 h+ — intensity drives the target
+  target = Math.round(target / 5) * 5;
+  state.target = target;
   const el = document.getElementById('setup-target');
-  if (el) el.value = band.mid;
+  if (el) el.value = target;
 }
 
 /* ============ SETUP SCREEN ============ */
@@ -383,8 +390,13 @@ function render() {
   const dur  = Math.max(0.5, Number(state.duration) || 0.5);
   const band = bandFor(dur);
 
-  // Auto-target sync
-  if (state.autoTarget) state.target = band.mid;
+  // Auto-target sync (mirrors applyAutoTarget logic)
+  if (state.autoTarget) {
+    const wt = WORKOUT_TYPES.find(w => w.id === state.workoutType);
+    const wtCarbs = wt ? wt.defaultCarbs : 60;
+    let t2 = dur <= 1.5 ? 0 : dur <= 2 ? Math.min(wtCarbs, 40) : wtCarbs;
+    state.target = Math.round(t2 / 5) * 5;
+  }
 
   const target = Math.max(1, Number(state.target) || 1);
   const cph    = t.carbs / dur;
