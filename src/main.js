@@ -647,42 +647,82 @@ document.getElementById('btn-save-local').addEventListener('click', () => { save
 // Saved step back
 document.getElementById('saved-back').addEventListener('click', () => goTo('landing'));
 
-// Mobile sticky bar / sheet helpers
-function openSheet()  {
-  document.getElementById('stats-panel').classList.add('sheet-open');
-  document.getElementById('sheet-backdrop').classList.add('is-visible');
+// ── Mobile sheet state machine ──────────────────────────────────────────────
+// 'closed'  – fully hidden (default)
+// 'scroll'  – driven directly by scroll position (no CSS transition)
+// 'manual'  – opened/closed by tap (CSS transition applies)
+const panel    = document.getElementById('stats-panel');
+const backdrop = document.getElementById('sheet-backdrop');
+let sheetState  = 'closed';
+let userClosed  = false; // user explicitly dismissed; don't re-open until they scroll back up
+
+const SHEET_TRIGGER_PX = 320; // px from bottom where animation begins
+
+function openSheet() {
+  sheetState = 'manual';
+  userClosed = false;
+  panel.style.transition = '';   // restore CSS transition
+  panel.style.transform  = '';
+  panel.classList.add('sheet-open');
+  backdrop.style.cssText = '';
+  backdrop.classList.add('is-visible');
 }
+
 function closeSheet() {
-  document.getElementById('stats-panel').classList.remove('sheet-open');
-  document.getElementById('sheet-backdrop').classList.remove('is-visible');
+  userClosed = (sheetState === 'scroll'); // only lock if it was scroll-driven
+  sheetState = 'closed';
+  panel.style.transition = '';
+  panel.style.transform  = '';
+  panel.classList.remove('sheet-open');
+  backdrop.style.cssText = '';
+  backdrop.classList.remove('is-visible');
 }
+
 function toggleSheet() {
-  const isOpen = document.getElementById('stats-panel').classList.contains('sheet-open');
-  isOpen ? closeSheet() : openSheet();
+  sheetState === 'manual' ? closeSheet() : openSheet();
 }
 
 document.getElementById('sb-toggle').addEventListener('click', toggleSheet);
 document.getElementById('sheet-backdrop').addEventListener('click', closeSheet);
 
-// Auto-open sheet when approaching the bottom of the catalog,
-// close again when the user scrolls back up.
-let sheetAutoOpen = false;
-const SHEET_TRIGGER_PX = 260; // px from bottom of page to open
-
+// Scroll-linked sheet: panel rises exactly as fast as you scroll.
 window.addEventListener('scroll', () => {
-  if (window.innerWidth > 900) return;                      // desktop has permanent sidebar
+  if (window.innerWidth > 900) return;
   if (document.body.dataset.step !== 'catalog') return;
+  if (sheetState === 'manual') return;
 
   const distFromBottom = document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
 
-  if (distFromBottom <= SHEET_TRIGGER_PX && !sheetAutoOpen) {
-    sheetAutoOpen = true;
-    openSheet();
-  } else if (distFromBottom > SHEET_TRIGGER_PX + 80 && sheetAutoOpen) {
-    // +80 hysteresis so it doesn't flicker at the threshold
-    sheetAutoOpen = false;
-    closeSheet();
+  // Reset userClosed flag once they've scrolled well clear of the trigger zone
+  if (distFromBottom > SHEET_TRIGGER_PX + 60) userClosed = false;
+
+  // Outside trigger zone — ensure panel is hidden
+  if (distFromBottom > SHEET_TRIGGER_PX) {
+    if (sheetState === 'scroll') {
+      sheetState = 'closed';
+      panel.style.transition = 'none';
+      panel.style.transform  = 'translateY(100%)';
+      backdrop.style.cssText = 'display:none;opacity:0;transition:none';
+    }
+    return;
   }
+
+  // Skip if user explicitly closed the sheet and hasn't scrolled back up yet
+  if (userClosed) return;
+
+  // Map scroll progress (0 → 1) to transform (hidden → visible)
+  sheetState = 'scroll';
+  const progress = Math.max(0, Math.min(1, 1 - distFromBottom / SHEET_TRIGGER_PX));
+  const panelH   = panel.offsetHeight || Math.round(window.innerHeight * 0.86);
+
+  panel.classList.remove('sheet-open');         // class would re-add transition
+  panel.style.transition = 'none';              // no easing — move with finger
+  panel.style.transform  = `translateY(${Math.round((1 - progress) * panelH)}px)`;
+
+  backdrop.style.display    = 'block';
+  backdrop.style.transition = 'none';
+  backdrop.style.opacity    = (progress * 0.35).toFixed(2);
+  backdrop.classList.remove('is-visible');
 }, { passive: true });
 
 // Start on landing; if returning user has items in state, go to catalog directly

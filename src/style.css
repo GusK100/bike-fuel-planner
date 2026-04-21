@@ -538,12 +538,14 @@ body[data-step="catalog"] #step-catalog { display: flex; }
     border-radius: 18px 18px 0 0;
     border-bottom: none;
     z-index: 50;
-    transform: translateY(calc(100% - 0px));
-    transition: transform .32s cubic-bezier(0.32,0.72,0,1);
+    transform: translateY(100%);
+    /* No default transition — JS drives it during scroll.
+       The transition is restored inline by openSheet/closeSheet for tap gestures. */
     box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
   }
   .stats-panel.sheet-open {
     transform: translateY(0);
+    transition: transform .38s cubic-bezier(0.32,0.72,0,1);
   }
 
   /* Sheet handle */
