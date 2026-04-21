@@ -199,15 +199,12 @@ function updateWtDesc() {
 function applyAutoTarget() {
   const wt = WORKOUT_TYPES.find(w => w.id === state.workoutType);
   const wtCarbs = wt ? wt.defaultCarbs : 60;
-  // Short rides cap carbs regardless of intensity
-  let target;
-  if (state.duration <= 1.5)      target = 0;               // <90 min — glycogen covers it
-  else if (state.duration <= 2)   target = Math.min(wtCarbs, 40); // 90 min–2 h — absorption limit
-  else                            target = wtCarbs;          // 2 h+ — intensity drives the target
-  target = Math.round(target / 5) * 5;
-  state.target = target;
+  // Under 90 min: glycogen covers it — no exogenous carbs needed regardless of intensity
+  // 90 min+: workout type is the sole driver
+  const target = state.duration <= 1.5 ? 0 : wtCarbs;
+  state.target = Math.round(target / 5) * 5;
   const el = document.getElementById('setup-target');
-  if (el) el.value = target;
+  if (el) el.value = state.target;
 }
 
 /* ============ SETUP SCREEN ============ */
@@ -394,8 +391,7 @@ function render() {
   if (state.autoTarget) {
     const wt = WORKOUT_TYPES.find(w => w.id === state.workoutType);
     const wtCarbs = wt ? wt.defaultCarbs : 60;
-    let t2 = dur <= 1.5 ? 0 : dur <= 2 ? Math.min(wtCarbs, 40) : wtCarbs;
-    state.target = Math.round(t2 / 5) * 5;
+    state.target = Math.round((dur <= 1.5 ? 0 : wtCarbs) / 5) * 5;
   }
 
   const target = Math.max(1, Number(state.target) || 1);
