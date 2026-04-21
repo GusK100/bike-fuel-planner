@@ -402,7 +402,7 @@ body[data-step="catalog"] #step-catalog { display: flex; }
   padding: 0 20px 80px;
   gap: 32px;
 }
-.catalog-main { min-width: 0; padding-top: 8px; padding-bottom: 40px; }
+.catalog-main { min-width: 0; padding-top: 8px; padding-bottom: 60px; }
 
 /* Section labels */
 .section-label {
@@ -1154,7 +1154,7 @@ body.cost-off .readout.cost-readout { display: none; }
 
 /* ===== RULES ===== */
 .rules {
-  margin-top: 80px;
+  margin-top: 140px;
   padding: 20px 22px;
   background: var(--card);
   border: 0.5px solid var(--border);

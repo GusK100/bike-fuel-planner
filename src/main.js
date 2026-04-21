@@ -664,24 +664,26 @@ function toggleSheet() {
 document.getElementById('sb-toggle').addEventListener('click', toggleSheet);
 document.getElementById('sheet-backdrop').addEventListener('click', closeSheet);
 
-// Auto-open sheet when user scrolls to the bottom (rules section)
-// Auto-close when they scroll back up past it
-const rulesEl = document.querySelector('.rules');
-if (rulesEl) {
-  const observer = new IntersectionObserver(([entry]) => {
-    if (window.innerWidth > 900) return; // desktop has permanent sidebar
-    if (entry.isIntersecting) {
-      openSheet();
-    } else if (entry.boundingClientRect.top > 0) {
-      // Rules is below the viewport → user scrolled back up → close
-      closeSheet();
-    }
-  }, {
-    threshold: 0,
-    rootMargin: '0px 0px 120px 0px', // fire 120px before rules reaches the viewport edge
-  });
-  observer.observe(rulesEl);
-}
+// Auto-open sheet when approaching the bottom of the catalog,
+// close again when the user scrolls back up.
+let sheetAutoOpen = false;
+const SHEET_TRIGGER_PX = 260; // px from bottom of page to open
+
+window.addEventListener('scroll', () => {
+  if (window.innerWidth > 900) return;                      // desktop has permanent sidebar
+  if (document.body.dataset.step !== 'catalog') return;
+
+  const distFromBottom = document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+
+  if (distFromBottom <= SHEET_TRIGGER_PX && !sheetAutoOpen) {
+    sheetAutoOpen = true;
+    openSheet();
+  } else if (distFromBottom > SHEET_TRIGGER_PX + 80 && sheetAutoOpen) {
+    // +80 hysteresis so it doesn't flicker at the threshold
+    sheetAutoOpen = false;
+    closeSheet();
+  }
+}, { passive: true });
 
 // Start on landing; if returning user has items in state, go to catalog directly
 if (Object.keys(state.qty).length > 0 && state.name) {
