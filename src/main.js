@@ -647,15 +647,38 @@ document.getElementById('btn-save-local').addEventListener('click', () => { save
 // Saved step back
 document.getElementById('saved-back').addEventListener('click', () => goTo('landing'));
 
-// Mobile sticky bar / sheet
-document.getElementById('sb-toggle').addEventListener('click', () => {
-  document.getElementById('stats-panel').classList.toggle('sheet-open');
-  document.getElementById('sheet-backdrop').classList.toggle('is-visible');
-});
-document.getElementById('sheet-backdrop').addEventListener('click', () => {
+// Mobile sticky bar / sheet helpers
+function openSheet()  {
+  document.getElementById('stats-panel').classList.add('sheet-open');
+  document.getElementById('sheet-backdrop').classList.add('is-visible');
+}
+function closeSheet() {
   document.getElementById('stats-panel').classList.remove('sheet-open');
   document.getElementById('sheet-backdrop').classList.remove('is-visible');
-});
+}
+function toggleSheet() {
+  const isOpen = document.getElementById('stats-panel').classList.contains('sheet-open');
+  isOpen ? closeSheet() : openSheet();
+}
+
+document.getElementById('sb-toggle').addEventListener('click', toggleSheet);
+document.getElementById('sheet-backdrop').addEventListener('click', closeSheet);
+
+// Auto-open sheet when user scrolls to the bottom (rules section)
+// Auto-close when they scroll back up past it
+const rulesEl = document.querySelector('.rules');
+if (rulesEl) {
+  const observer = new IntersectionObserver(([entry]) => {
+    if (window.innerWidth > 900) return; // desktop has permanent sidebar
+    if (entry.isIntersecting) {
+      openSheet();
+    } else if (entry.boundingClientRect.top > 0) {
+      // Rules is below the viewport → user scrolled back up → close
+      closeSheet();
+    }
+  }, { threshold: 0.2 });
+  observer.observe(rulesEl);
+}
 
 // Start on landing; if returning user has items in state, go to catalog directly
 if (Object.keys(state.qty).length > 0 && state.name) {
