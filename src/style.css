@@ -739,6 +739,28 @@ body.icons-white .icon-wrap { background: #fff; border: 0.5px solid var(--border
 }
 .type-col { display: flex; flex-direction: column; line-height: 1.2; }
 
+/* Buy link */
+.buy-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-faint);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  padding: 3px 7px;
+  border-radius: 5px;
+  border: 0.5px solid var(--border-strong);
+  background: var(--panel);
+  transition: color .15s, background .15s;
+  position: relative;
+  z-index: 2;
+}
+.buy-link:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
 /* Stepper */
 .stepper {
   position: absolute;

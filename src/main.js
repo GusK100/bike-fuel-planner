@@ -49,22 +49,22 @@ const WORKOUT_TYPES = [
 
 /* ============ FUELS ============ */
 const FUELS = [
-  { id: 'gel40',   name: 'Energy gel, 40g',   sub: 'e.g. Maurten Gel 100',          type: 'fast',      carbs: 25, cals: 100, weight: 40,  cost: 2.50 },
-  { id: 'gel60',   name: 'Energy gel, 60g',   sub: 'e.g. SiS Beta Fuel',            type: 'fast',      carbs: 40, cals: 160, weight: 60,  cost: 3.20 },
-  { id: 'drink',   name: 'Drink mix, 500ml',  sub: 'e.g. Maurten 320',              type: 'fast',      carbs: 80, cals: 320, weight: 520, cost: 3.50 },
+  { id: 'gel40',   name: 'Energy gel, 40g',   sub: 'e.g. Maurten Gel 100',          type: 'fast',      carbs: 25, cals: 100, weight: 40,  cost: 2.50, link: 'https://www.maurten.com/products/gel100' },
+  { id: 'gel60',   name: 'Energy gel, 60g',   sub: 'e.g. SiS Beta Fuel',            type: 'fast',      carbs: 40, cals: 160, weight: 60,  cost: 3.20, link: 'https://www.scienceinsport.com/sports-nutrition/beta-fuel/' },
+  { id: 'drink',   name: 'Drink mix, 500ml',  sub: 'e.g. Maurten 320',              type: 'fast',      carbs: 80, cals: 320, weight: 520, cost: 3.50, link: 'https://www.maurten.com/products/mix-320' },
   { id: 'haribo',  name: 'Haribo',            sub: 'small handful, ~25g',           type: 'fast',      carbs: 20, cals: 85,  weight: 25,  cost: 0.50 },
   { id: 'chews',   name: 'Energy chews',      sub: '3 cubes, ~30g',                 type: 'fast',      carbs: 24, cals: 100, weight: 33,  cost: 2.20 },
   { id: 'cola',    name: 'Soda with sugar',   sub: '1 small can, 330ml',            type: 'fast',      carbs: 35, cals: 140, weight: 350, cost: 1.00 },
-  { id: 'caf75',   name: 'Caffeine gel, 75mg',sub: 'e.g. SiS GO Caffeine',          type: 'fast',      carbs: 22, cals: 90,  weight: 60,  cost: 2.80, caffeine: 75  },
-  { id: 'caf100',  name: 'Caffeine gel, 100mg',sub:'e.g. Maurten Caf 100',          type: 'fast',      carbs: 25, cals: 100, weight: 40,  cost: 3.80, caffeine: 100 },
+  { id: 'caf75',   name: 'Caffeine gel, 75mg',sub: 'e.g. SiS GO Caffeine',          type: 'fast',      carbs: 22, cals: 90,  weight: 60,  cost: 2.80, caffeine: 75,  link: 'https://www.scienceinsport.com/sports-nutrition/sis-go/' },
+  { id: 'caf100',  name: 'Caffeine gel, 100mg',sub:'e.g. Maurten Caf 100',          type: 'fast',      carbs: 25, cals: 100, weight: 40,  cost: 3.80, caffeine: 100, link: 'https://www.maurten.com/products/gel100-caf100' },
   { id: 'banana',  name: 'Banana',            sub: 'medium, ~120g',                 type: 'mixed',     carbs: 27, cals: 105, weight: 120, cost: 0.30 },
   { id: 'mango',   name: 'Dried mango',       sub: '~30g portion',                  type: 'mixed',     carbs: 19, cals: 95,  weight: 30,  cost: 1.20 },
   { id: 'raisins', name: 'Raisins',           sub: 'mini box, ~30g',                type: 'mixed',     carbs: 23, cals: 90,  weight: 30,  cost: 0.40 },
   { id: 'oatbar',  name: 'Oat bar',           sub: 'shop-bought, ~60g',             type: 'slow',      carbs: 35, cals: 240, weight: 60,  cost: 1.50 },
-  { id: 'giff',    name: 'Pågen Gifflar',     sub: 'cinnamon, 1 roll ~26g',         type: 'slow',      carbs: 13, cals: 93,  weight: 26,  cost: 0.40 },
+  { id: 'giff',    name: 'Pågen Gifflar',     sub: 'cinnamon, 1 roll ~26g',         type: 'slow',      carbs: 13, cals: 93,  weight: 26,  cost: 0.40, link: 'https://www.pagen.se' },
   { id: 'rice',    name: 'Rice cake + honey', sub: 'homemade, ~60g',                type: 'slow',      carbs: 35, cals: 180, weight: 60,  cost: 0.50 },
-  { id: 'water',   name: 'Water',             sub: '500ml bottle',                   type: 'hydration', carbs: 0,  cals: 0,   weight: 520, cost: 0.00 },
-  { id: 'electro', name: 'Electrolyte drink', sub: 'e.g. Precision Hydration',      type: 'hydration', carbs: 3,  cals: 15,  weight: 520, cost: 1.50 },
+  { id: 'water',   name: 'Water',             sub: '500ml bottle',                  type: 'hydration', carbs: 0,  cals: 0,   weight: 520, cost: 0.00 },
+  { id: 'electro', name: 'Electrolyte drink', sub: 'e.g. Precision Hydration',      type: 'hydration', carbs: 3,  cals: 15,  weight: 520, cost: 1.50, link: 'https://precisionhydration.com/products/ph1000' },
 ];
 
 /* ============ ICONS ============ */
@@ -302,7 +302,7 @@ function renderGrids() {
 
   document.querySelectorAll('.card').forEach(card => {
     const id = card.dataset.id;
-    card.addEventListener('click', e => { if (!e.target.closest('.stepper')) addOne(id, card); });
+    card.addEventListener('click', e => { if (!e.target.closest('.stepper') && !e.target.closest('.buy-link')) addOne(id, card); });
     card.querySelector('.plus').addEventListener('click',  e => { e.stopPropagation(); addOne(id, card); });
     card.querySelector('.minus').addEventListener('click', e => { e.stopPropagation(); removeOne(id); });
   });
@@ -314,6 +314,7 @@ function fuelCard(f) {
   const cafBadge  = f.caffeine ? `<span class="caf-badge">${f.caffeine}mg</span>` : '';
   const carbsVal  = f.type === 'hydration' && f.carbs === 0 ? '—' : `${f.carbs} g`;
   const calsVal   = f.type === 'hydration' && f.cals  === 0 ? '—' : `${f.cals}`;
+  const buyLink   = f.link ? `<a class="buy-link" href="${f.link}" target="_blank" rel="noopener noreferrer">Buy →</a>` : '';
   return `
     <div class="card" data-id="${f.id}" data-type="${f.type}">
       <div class="icon-wrap">${ICONS[f.id]}${cafBadge}</div>
@@ -324,6 +325,7 @@ function fuelCard(f) {
         <div class="stat"><span class="stat-label">carbs</span><span class="stat-value">${carbsVal}</span></div>
         <div class="stat"><span class="stat-label">cals</span><span class="stat-value">${calsVal}</span></div>
       </div>
+      ${buyLink}
       <div class="stepper" aria-label="Quantity">
         <button class="minus" aria-label="Remove one">−</button>
         <span class="qty">0</span>
