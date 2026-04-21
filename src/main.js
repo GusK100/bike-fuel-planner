@@ -676,7 +676,10 @@ if (rulesEl) {
       // Rules is below the viewport → user scrolled back up → close
       closeSheet();
     }
-  }, { threshold: 0.2 });
+  }, {
+    threshold: 0,
+    rootMargin: '0px 0px 120px 0px', // fire 120px before rules reaches the viewport edge
+  });
   observer.observe(rulesEl);
 }
 
