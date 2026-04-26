@@ -59,6 +59,14 @@
       </div>
     </div>
 
+    <div class="setup-section">
+      <div class="setup-section-label">Ride goal</div>
+      <div class="goal-pills" id="goal-pills">
+        <button class="goal-pill is-active" data-goal="performance">Performance</button>
+        <button class="goal-pill" data-goal="weightloss">Weight loss</button>
+      </div>
+    </div>
+
     <div class="setup-inputs">
       <div class="input-cell">
         <label for="setup-dur">Duration</label>
@@ -87,6 +95,50 @@
     </div>
 
     <button class="cta-btn primary full-width" id="btn-build">Build my plan →</button>
+  </div>
+</div>
+
+<!-- ===== PRE-RIDE MEAL ===== -->
+<div id="step-preride" class="step">
+  <div class="step-page">
+    <button class="back-link" id="preride-back">← Back</button>
+    <h2 class="step-title">Pre-ride meal</h2>
+
+    <!-- Guidance card: timing + target + tip -->
+    <div class="preride-guide" id="preride-guide">
+      <div class="preride-guide-top">
+        <span class="preride-guide-timing" id="preride-guide-timing"></span>
+        <span class="preride-guide-target" id="preride-guide-target"></span>
+      </div>
+      <p class="preride-guide-note" id="preride-guide-note"></p>
+    </div>
+
+    <!-- Profile nudge -->
+    <div class="preride-nudge" id="preride-nudge">
+      <span class="preride-nudge-icon">💡</span>
+      <span>Add your weight &amp; height in your profile for personalised g/kg targets — coming soon.</span>
+    </div>
+
+    <!-- Food cards (rendered by JS) -->
+    <div class="preride-grid" id="preride-grid"></div>
+
+    <!-- Running total -->
+    <div class="preride-totals" id="preride-totals">
+      <div class="preride-totals-row">
+        <span class="preride-totals-label">Carbs from meal</span>
+        <span class="preride-totals-val"><span id="pr-carbs">0</span> g</span>
+      </div>
+      <div class="preride-bar-wrap">
+        <div class="preride-bar-fill" id="pr-bar-fill"></div>
+        <div class="preride-bar-target" id="pr-bar-target"></div>
+      </div>
+      <p class="preride-totals-hint" id="pr-hint"></p>
+    </div>
+
+    <div class="preride-actions">
+      <button class="cta-btn ghost" id="preride-skip">Skip, go to plan →</button>
+      <button class="cta-btn primary" id="preride-done">Done →</button>
+    </div>
   </div>
 </div>
 

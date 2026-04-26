@@ -38,13 +38,65 @@ function wireTweaks() {
 
 /* ============ WORKOUT TYPES ============ */
 const WORKOUT_TYPES = [
-  { id: 'recovery',  label: 'Recovery',   intensity: '<55% FTP',    carbs: '0–20g/hr',   defaultCarbs: 10,  desc: 'Active recovery. Promotes blood flow without adding training stress. Perfect after a hard day.' },
-  { id: 'endurance', label: 'Endurance',  intensity: '56–75% FTP',  carbs: '30–90g/hr',  defaultCarbs: 60,  desc: 'The foundation. Builds mitochondrial density and fat-burning efficiency. 60–70% of your training lives here.' },
-  { id: 'tempo',     label: 'Tempo',      intensity: '76–87% FTP',  carbs: '60g/hr',     defaultCarbs: 60,  desc: 'Builds muscular endurance and glycogen storage. Less fatiguing than threshold, great for time-crunched riders.' },
-  { id: 'sweetspot', label: 'Sweet Spot', intensity: '88–93% FTP',  carbs: '60–80g/hr',  defaultCarbs: 70,  desc: '~90% of threshold benefit with ~70% of the fatigue. The money zone for FTP gains per hour trained.' },
-  { id: 'threshold', label: 'Threshold',  intensity: '94–105% FTP', carbs: '80–90g/hr',  defaultCarbs: 80,  desc: 'The most direct FTP-builder. Heavily glycolytic — under-fuelling here kills the session quality.' },
-  { id: 'vo2max',    label: 'VO2max',     intensity: '106–120% FTP',carbs: '80–100g/hr', defaultCarbs: 90,  desc: 'Raises your aerobic ceiling. Only do when fully rested — fatigue blunts the stimulus completely.' },
-  { id: 'sprint',    label: 'Sprint',     intensity: '>120% FTP',   carbs: '60–80g/hr',  defaultCarbs: 70,  desc: 'Builds neuromuscular power and anaerobic capacity. Pre-loaded carbs matter more than in-session intake.' },
+  { id: 'recovery',  label: 'Recovery',   intensity: '<55% FTP',    carbs: '0–20g/hr',   defaultCarbs: 10, defaultCarbsWL: 10, desc: 'Active recovery. Promotes blood flow without adding training stress. Perfect after a hard day.' },
+  { id: 'endurance', label: 'Endurance',  intensity: '56–75% FTP',  carbs: '30–90g/hr',  defaultCarbs: 60, defaultCarbsWL: 35, desc: 'The foundation. Builds mitochondrial density and fat-burning efficiency. 60–70% of your training lives here.' },
+  { id: 'tempo',     label: 'Tempo',      intensity: '76–87% FTP',  carbs: '60g/hr',     defaultCarbs: 60, defaultCarbsWL: 60, desc: 'Builds muscular endurance and glycogen storage. Less fatiguing than threshold, great for time-crunched riders.' },
+  { id: 'sweetspot', label: 'Sweet Spot', intensity: '88–93% FTP',  carbs: '60–80g/hr',  defaultCarbs: 70, defaultCarbsWL: 70, desc: '~90% of threshold benefit with ~70% of the fatigue. The money zone for FTP gains per hour trained.' },
+  { id: 'threshold', label: 'Threshold',  intensity: '94–105% FTP', carbs: '80–90g/hr',  defaultCarbs: 80, defaultCarbsWL: 80, desc: 'The most direct FTP-builder. Heavily glycolytic — under-fuelling here kills the session quality.' },
+  { id: 'vo2max',    label: 'VO2max',     intensity: '106–120% FTP',carbs: '80–100g/hr', defaultCarbs: 90, defaultCarbsWL: 90, desc: 'Raises your aerobic ceiling. Only do when fully rested — fatigue blunts the stimulus completely.' },
+  { id: 'sprint',    label: 'Sprint',     intensity: '>120% FTP',   carbs: '60–80g/hr',  defaultCarbs: 70, defaultCarbsWL: 70, desc: 'Builds neuromuscular power and anaerobic capacity. Pre-loaded carbs matter more than in-session intake.' },
+];
+
+/* ============ PRE-RIDE GUIDANCE ============ */
+// Carb targets in grams; timing = how long before ride; note = coaching cue
+const PRERIDE_GUIDANCE = {
+  recovery: {
+    performance: { carbs: 0,   timing: null,            note: 'Nothing needed. Coffee and water is fine — the whole point of recovery is to not stress the system.' },
+    weightloss:  { carbs: 0,   timing: null,            note: 'Fast this one. It\'s the ideal fat-burning window. Keep it genuinely easy.' },
+  },
+  endurance_short: { // < 1.5 h
+    performance: { carbs: 25,  timing: '30 min before', note: 'Optional small snack if you\'re hungry or riding first thing. A banana or half a Gifflar is plenty.' },
+    weightloss:  { carbs: 0,   timing: null,            note: 'Best fasted ride opportunity — water and coffee only. Fat oxidation is maximal here. Don\'t extend past 90 min on no fuel.' },
+  },
+  endurance_long: { // ≥ 1.5 h
+    performance: { carbs: 120, timing: '2–3 hrs before', note: 'Carb-focused breakfast — oatmeal with honey, toast with jam. Low fat and low fibre.' },
+    weightloss:  { carbs: 60,  timing: '2 hrs before',   note: 'Smaller breakfast to finish with low glycogen and boost fat oxidation. Don\'t go fully fasted beyond 90 min.' },
+  },
+  tempo: {
+    performance: { carbs: 80,  timing: '2 hrs before',   note: 'Light carb meal — toast with honey, banana, yogurt. Low fat and fibre.' },
+    weightloss:  { carbs: 80,  timing: '2 hrs before',   note: 'No compromise here. Tempo needs glycogen — make the deficit at lunch or dinner instead.' },
+  },
+  sweetspot: {
+    performance: { carbs: 80,  timing: '2 hrs before',   note: 'Light carb meal — toast with honey, banana, yogurt. Low fat and fibre.' },
+    weightloss:  { carbs: 80,  timing: '2 hrs before',   note: 'No compromise. Under-fuelling sweet spot produces a bad session and a worse adaptation. Eat to perform.' },
+  },
+  threshold: {
+    performance: { carbs: 120, timing: '2–3 hrs before', note: 'Carb-heavy session. Add a gel or banana 15 min before your first interval.' },
+    weightloss:  { carbs: 120, timing: '2–3 hrs before', note: 'Same as performance — never under-fuel threshold work. Make the calorie deficit at other meals.' },
+  },
+  vo2max: {
+    performance: { carbs: 150, timing: '3 hrs before',   note: 'Most carb-dependent session you do. Carb-load the night before too. White bread, white rice — low fat and fibre only.' },
+    weightloss:  { carbs: 150, timing: '3 hrs before',   note: 'Same as performance, full stop. VO2max runs on glycogen alone — under-fuelling wastes the session entirely.' },
+  },
+  sprint: {
+    performance: { carbs: 80,  timing: '2–3 hrs before', note: 'Normal carb meal. Pre-loaded carbs matter more than in-session for sprint work. Caffeine 60 min before helps significantly.' },
+    weightloss:  { carbs: 80,  timing: '2–3 hrs before', note: 'Same as performance. Sprint sessions are short enough that fuelling won\'t compromise your weight goals.' },
+  },
+};
+
+function getPrerideGuidance() {
+  const wt   = state.workoutType;
+  const goal = state.goal || 'performance';
+  let key    = wt;
+  if (wt === 'endurance') key = state.duration < 1.5 ? 'endurance_short' : 'endurance_long';
+  return (PRERIDE_GUIDANCE[key] || PRERIDE_GUIDANCE.endurance_long)[goal];
+}
+
+/* ============ PRE-RIDE FOODS ============ */
+const PRERIDE_FOODS = [
+  { id: 'oats',   name: 'Oats',   sub: 'dry, rolled',    carbs100: 60, cals100: 389, icon: '🥣' },
+  { id: 'honey',  name: 'Honey',  sub: 'liquid honey',   carbs100: 82, cals100: 304, icon: '🍯' },
+  { id: 'banana', name: 'Banana', sub: 'peeled weight',  carbs100: 23, cals100: 89,  icon: '🍌' },
 ];
 
 /* ============ FUELS ============ */
@@ -136,9 +188,11 @@ const state = {
   target: 60,
   autoTarget: true,
   workoutType: 'endurance',
+  goal: 'performance',
   ftp: 0,
   qty: {},
   customTimes: {},
+  preride: { oats: 0, honey: 0, banana: 0 },
 };
 
 function loadState() {
@@ -147,6 +201,8 @@ function loadState() {
     Object.assign(state, s);
     state.qty         = s.qty         || {};
     state.customTimes = s.customTimes || {};
+    state.preride     = s.preride     || { oats: 0, honey: 0, banana: 0 };
+    state.goal        = s.goal        || 'performance';
   } catch (e) {}
 }
 function saveState() {
@@ -160,8 +216,92 @@ function goTo(step) {
   document.body.dataset.step = step;
   if (step === 'catalog') { renderGrids(); render(); renderSetupBar(); }
   if (step === 'setup')   { populateSetup(); }
+  if (step === 'preride') { renderPreride(); }
   if (step === 'saved')   { renderSavedStep(); }
   if (step === 'save')    { renderSaveSummary(); }
+}
+
+/* ============ PRE-RIDE MEAL STEP ============ */
+function renderPreride() {
+  const guide = getPrerideGuidance();
+
+  // Guide card
+  document.getElementById('preride-guide-timing').textContent = guide.timing || '';
+  document.getElementById('preride-guide-target').textContent = guide.carbs > 0 ? `~${guide.carbs} g carbs` : '';
+  document.getElementById('preride-guide-note').textContent   = guide.note;
+
+  // Show/hide the whole guide card — always visible but note changes
+  const guideEl = document.getElementById('preride-guide');
+  guideEl.classList.toggle('no-fuel', guide.carbs === 0 && !guide.timing);
+
+  // Build food cards
+  const grid = document.getElementById('preride-grid');
+  grid.innerHTML = PRERIDE_FOODS.map(f => `
+    <div class="pr-food-card">
+      <div class="pr-food-icon">${f.icon}</div>
+      <div class="pr-food-info">
+        <div class="pr-food-name">${f.name}</div>
+        <div class="pr-food-sub">${f.sub} · ${f.carbs100} g carbs/100g</div>
+      </div>
+      <div class="pr-food-input-wrap">
+        <input class="pr-food-input" type="number" min="0" max="500" step="5"
+          data-food="${f.id}" value="${state.preride[f.id] || 0}" inputmode="numeric">
+        <span class="pr-food-unit">g</span>
+      </div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.pr-food-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const id  = inp.dataset.food;
+      const val = Math.max(0, Math.min(500, Number(inp.value) || 0));
+      state.preride[id] = val;
+      saveState();
+      updatePrerideTotals(guide);
+    });
+  });
+
+  updatePrerideTotals(guide);
+
+  // Wire action buttons (remove any previous listeners by cloning)
+  ['preride-back', 'preride-skip', 'preride-done'].forEach(id => {
+    const el = document.getElementById(id);
+    const clone = el.cloneNode(true);
+    el.parentNode.replaceChild(clone, el);
+  });
+  document.getElementById('preride-back').addEventListener('click', () => goTo('setup'));
+  document.getElementById('preride-skip').addEventListener('click', () => { saveState(); goTo('catalog'); });
+  document.getElementById('preride-done').addEventListener('click', () => { saveState(); goTo('catalog'); });
+}
+
+function updatePrerideTotals(guide) {
+  let totalCarbs = 0;
+  PRERIDE_FOODS.forEach(f => { totalCarbs += ((state.preride[f.id] || 0) / 100) * f.carbs100; });
+  totalCarbs = Math.round(totalCarbs);
+
+  document.getElementById('pr-carbs').textContent = totalCarbs;
+
+  const targetCarbs = guide.carbs;
+  const barFill   = document.getElementById('pr-bar-fill');
+  const barTarget = document.getElementById('pr-bar-target');
+  const hint      = document.getElementById('pr-hint');
+
+  if (targetCarbs > 0) {
+    const pct = Math.min(140, (totalCarbs / targetCarbs) * 100);
+    barFill.style.width = pct + '%';
+    barFill.className   = 'preride-bar-fill' + (totalCarbs < targetCarbs * 0.7 ? ' bad' : totalCarbs <= targetCarbs * 1.15 ? ' good' : ' warn');
+    barTarget.style.left = '100%'; // marker at 100%
+    barTarget.style.display = 'block';
+    if      (totalCarbs === 0)                      hint.textContent = `Aim for ~${targetCarbs} g carbs`;
+    else if (totalCarbs < targetCarbs * 0.7)        hint.textContent = `${targetCarbs - totalCarbs} g short of target`;
+    else if (totalCarbs <= targetCarbs * 1.15)      hint.textContent = 'On target ✓';
+    else                                             hint.textContent = `${totalCarbs - targetCarbs} g over — fine if well tolerated`;
+  } else {
+    // No fuel needed
+    barFill.style.width   = '0%';
+    barTarget.style.display = 'none';
+    hint.textContent = totalCarbs > 0 ? 'Optional — no carbs needed for this session' : '';
+  }
 }
 
 function renderSetupBar() {
@@ -198,9 +338,10 @@ function updateWtDesc() {
 
 function applyAutoTarget() {
   const wt = WORKOUT_TYPES.find(w => w.id === state.workoutType);
-  const wtCarbs = wt ? wt.defaultCarbs : 60;
+  const isWL = state.goal === 'weightloss';
+  const wtCarbs = wt ? (isWL ? wt.defaultCarbsWL : wt.defaultCarbs) : 60;
   // Under 90 min: glycogen covers it — no exogenous carbs needed regardless of intensity
-  // 90 min+: workout type is the sole driver
+  // 90 min+: workout type (and goal) is the sole driver
   const target = state.duration <= 1.5 ? 0 : wtCarbs;
   state.target = Math.round(target / 5) * 5;
   const el = document.getElementById('setup-target');
@@ -214,6 +355,7 @@ function populateSetup() {
   document.getElementById('setup-target').value = state.target;
   if (state.ftp) document.getElementById('setup-ftp').value = state.ftp;
   document.getElementById('setup-auto-target').setAttribute('aria-pressed', state.autoTarget ? 'true' : 'false');
+  document.querySelectorAll('.goal-pill').forEach(b => b.classList.toggle('is-active', b.dataset.goal === (state.goal || 'performance')));
   renderWorkoutPills();
 }
 
@@ -243,10 +385,19 @@ function wireSetup() {
     state.ftp = Math.max(0, Math.min(600, Number(e.target.value) || 0));
   });
 
+  // Goal pills
+  document.getElementById('goal-pills').addEventListener('click', e => {
+    const btn = e.target.closest('.goal-pill');
+    if (!btn) return;
+    state.goal = btn.dataset.goal;
+    document.querySelectorAll('.goal-pill').forEach(b => b.classList.toggle('is-active', b.dataset.goal === state.goal));
+    if (state.autoTarget) applyAutoTarget();
+  });
+
   document.getElementById('btn-build').addEventListener('click', () => {
     if (!state.name) state.name = document.getElementById('setup-name').value.trim() || 'Untitled ride';
     saveState();
-    goTo('catalog');
+    goTo('preride');
   });
 }
 
@@ -392,7 +543,8 @@ function render() {
   // Auto-target sync (mirrors applyAutoTarget logic)
   if (state.autoTarget) {
     const wt = WORKOUT_TYPES.find(w => w.id === state.workoutType);
-    const wtCarbs = wt ? wt.defaultCarbs : 60;
+    const isWL = state.goal === 'weightloss';
+    const wtCarbs = wt ? (isWL ? wt.defaultCarbsWL : wt.defaultCarbs) : 60;
     state.target = Math.round((dur <= 1.5 ? 0 : wtCarbs) / 5) * 5;
   }
 
@@ -599,7 +751,7 @@ function savePlan() {
   const t = totals();
   if (!t.count) { toast('Add some items first'); return; }
   const list = getSaved();
-  list.unshift({ name: state.name, duration: state.duration, target: state.target, autoTarget: state.autoTarget, workoutType: state.workoutType, ftp: state.ftp, qty: { ...state.qty }, customTimes: { ...state.customTimes }, totalCarbs: Math.round(t.carbs), savedAt: Date.now() });
+  list.unshift({ name: state.name, duration: state.duration, target: state.target, autoTarget: state.autoTarget, workoutType: state.workoutType, goal: state.goal || 'performance', ftp: state.ftp, qty: { ...state.qty }, customTimes: { ...state.customTimes }, preride: { ...state.preride }, totalCarbs: Math.round(t.carbs), savedAt: Date.now() });
   setSaved(list.slice(0, 20));
   renderSaved();
   toast(`Saved "${state.name}"`);
@@ -607,7 +759,7 @@ function savePlan() {
 
 function loadSaved(i) {
   const p = getSaved()[i]; if (!p) return;
-  Object.assign(state, { name: p.name, duration: p.duration, target: p.target, autoTarget: p.autoTarget !== false, workoutType: p.workoutType || 'endurance', ftp: p.ftp || 0, qty: { ...p.qty }, customTimes: { ...(p.customTimes || {}) } });
+  Object.assign(state, { name: p.name, duration: p.duration, target: p.target, autoTarget: p.autoTarget !== false, workoutType: p.workoutType || 'endurance', goal: p.goal || 'performance', ftp: p.ftp || 0, qty: { ...p.qty }, customTimes: { ...(p.customTimes || {}) }, preride: { ...(p.preride || { oats: 0, honey: 0, banana: 0 }) } });
   saveState(); renderSetupBar(); render();
   toast(`Loaded "${p.name}"`);
 }
